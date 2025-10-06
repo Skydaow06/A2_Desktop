@@ -11,6 +11,7 @@ def draw():
     drawGrid()
     gridNumpad()
     drawNumpad()
+    drawNumber()
 
 def drawGrid():
     i = 0
@@ -61,6 +62,22 @@ def loadGrid(filename):
             grid[i][j] = int(num[j])
             j += 1
         i += 1
+        
+def drawNumber():
+    textAlign(CENTER, CENTER)
+    textSize(32)
+    fill(0)
+    i = 0
+    while i < 9:
+        j = 0
+        while j < 9:
+            if grid[i][j] != 0: 
+                text(str(grid[i][j]),
+                     (j * cell_size) + (cell_size / 2),
+                     (i * cell_size) + (cell_size / 2))
+            j += 1
+        i += 1
+
         
 
 
