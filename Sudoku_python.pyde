@@ -1,6 +1,8 @@
 grid = [[0 for _ in range(9)] for _ in range(9)]
 cell_size = 80
 cell_num = 80
+selectedRow = -1
+selectedCol = -1
 
 def setup():
     size(1200, 800)
@@ -12,6 +14,7 @@ def draw():
     gridNumpad()
     drawNumpad()
     drawNumber()
+    drawSelection()
 
 def drawGrid():
     i = 0
@@ -78,8 +81,39 @@ def drawNumber():
             j += 1
         i += 1
 
+def drawSelection():
+    if selectedRow != -1 and selectedCol != -1:
+        noFill()
+        stroke(255, 0, 0)
+        strokeWeight(3)
+        rect(selectedCol * cell_size, selectedRow * cell_size, cell_size, cell_size)
+        strokeWeight(1)
+        stroke(0)
         
+def mousePressed():
+    global selectedRow, selectedCol, grid  
+    if mouseX >= 0 and mouseX < cell_size * 9 and mouseY >= 0 and mouseY < cell_size * 9:
+        selectedCol = int(mouseX / cell_size)
+        selectedRow = int(mouseY / cell_size)
+        print("Selected: row=" + str(selectedRow) + ", col=" + str(selectedCol))
+        return
 
+    nx = mouseX - 900
+    ny = mouseY - 300
 
+    if nx >= 0 and nx < cell_num * 3 and ny >= 0 and ny < cell_num * 3 and selectedRow != -1 and selectedCol != -1:
+        colNum = int(nx / cell_num)
+        rowNum = int(ny / cell_num)
+        num = rowNum * 3 + colNum + 1
 
-        
+        if isValid(selectedRow, selectedCol, num):
+            grid[selectedRow][selectedCol] = num
+            print("Inserted: " + str(num) + " at row=" + str(selectedRow) + ", col=" + str(selectedCol))
+        else:
+            print("Cannot insert " + str(num) + " at row=" + str(selectedRow) + ", col=" + str(selectedCol) + " (duplicate!)")
+
+    backX = 940 + cell_num + cell_num
+    backY = cell_num * 3
+    if mouseX >= backX - 40 and mouseX <= backX + 40 and mouseY >= backY - 40 and mouseY <= backY + 40 and selectedRow != -1 and selectedCol != -1:
+        grid[selectedRow][selectedCol] = 0
+        print("Deleted at row=" + str(selectedRow) + ", col=" + str(selectedCol))
