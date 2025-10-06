@@ -117,3 +117,27 @@ def mousePressed():
     if mouseX >= backX - 40 and mouseX <= backX + 40 and mouseY >= backY - 40 and mouseY <= backY + 40 and selectedRow != -1 and selectedCol != -1:
         grid[selectedRow][selectedCol] = 0
         print("Deleted at row=" + str(selectedRow) + ", col=" + str(selectedCol))
+
+def isValid(row, col, num):
+    i = 0
+    while i < 9:
+        if grid[row][i] == num:
+            return False
+        i += 1
+    i = 0
+    while i < 9:
+        if grid[i][col] == num:
+            return False
+        i += 1
+    startRow = (row // 3) * 3
+    startCol = (col // 3) * 3
+    i = 0
+    while i < 3:
+        j = 0
+        while j < 3:
+            if grid[startRow + i][startCol + j] == num:
+                return False
+            j += 1
+        i += 1
+
+    return True
