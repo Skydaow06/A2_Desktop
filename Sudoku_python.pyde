@@ -4,6 +4,7 @@ cell_num = 80
 
 def setup():
     size(1200, 800)
+    loadGrid("dataNum.txt")
     
 def draw():
     background(255)
@@ -36,10 +37,32 @@ def drawNumpad():
     textSize(30)
     fill(0)
     numpadNum = 1
-    for i in range(3):
-        for j in range(3):
+    i = 0
+    while i < 3:
+        j = 0
+        while j < 3:
             text(str(numpadNum),
                  (j * cell_num) + 900 + (cell_num / 2),
                  (i * cell_num) + (cell_num / 2) + 280)
             numpadNum += 1
+            j += 1
+        i += 1
     text("<", 940 + cell_num + cell_num, cell_num * 3)
+
+    
+def loadGrid(filename):
+    lines = loadStrings(filename)
+    
+    i = 0
+    while(i<9):
+        num = split(lines[i], ' ')
+        j = 0
+        while(j<9):
+            grid[i][j] = int(num[j])
+            j += 1
+        i += 1
+        
+
+
+
+        
