@@ -3,11 +3,14 @@ cell_size = 80
 cell_num = 80
 selectedRow = -1
 selectedCol = -1
+messageText = ""
+messageStartTime = 0
+fixedCell = [[False for _ in range(9)] for _ in range(9)]
 
 def setup():
-    size(1200, 800)
+    size(1200, 750)
     loadGrid("dataNum.txt")
-    
+
 def draw():
     background(255)
     drawGrid()
@@ -15,6 +18,7 @@ def draw():
     drawNumpad()
     drawNumber()
     drawSelection()
+    drawMessage()   
 
 def drawGrid():
     i = 0
@@ -45,27 +49,24 @@ def drawNumpad():
     while i < 3:
         j = 0
         while j < 3:
-            text(str(numpadNum),
-                 (j * cell_num) + 900 + (cell_num / 2),
-                 (i * cell_num) + (cell_num / 2) + 280)
+            text(str(numpadNum), (j * cell_num) + 900 + (cell_num / 2), (i * cell_num) + (cell_num / 2) + 280)
             numpadNum += 1
             j += 1
         i += 1
     text("<", 940 + cell_num + cell_num, cell_num * 3)
 
-    
 def loadGrid(filename):
     lines = loadStrings(filename)
-    
     i = 0
-    while(i<9):
+    while i < 9:
         num = split(lines[i], ' ')
         j = 0
-        while(j<9):
+        while j < 9:
             grid[i][j] = int(num[j])
+            fixedCell[i][j] = (grid[i][j] != 0)
             j += 1
         i += 1
-        
+
 def drawNumber():
     textAlign(CENTER, CENTER)
     textSize(32)
@@ -74,12 +75,17 @@ def drawNumber():
     while i < 9:
         j = 0
         while j < 9:
-            if grid[i][j] != 0: 
-                text(str(grid[i][j]),
-                     (j * cell_size) + (cell_size / 2),
-                     (i * cell_size) + (cell_size / 2))
+            if grid[i][j] != 0:
+                if fixedCell[i][j]:
+                    fill(200, 200, 200)
+                    rect(j * cell_size, i * cell_size, cell_size, cell_size)
+                    fill(0)
+                else:
+                    fill(0, 0, 200)
+                text(grid[i][j], j * cell_size + cell_size / 2, i * cell_size + cell_size / 2)
             j += 1
         i += 1
+
 
 def drawSelection():
     if selectedRow != -1 and selectedCol != -1:
@@ -89,9 +95,9 @@ def drawSelection():
         rect(selectedCol * cell_size, selectedRow * cell_size, cell_size, cell_size)
         strokeWeight(1)
         stroke(0)
-        
+
 def mousePressed():
-    global selectedRow, selectedCol, grid  
+    global selectedRow, selectedCol, grid
     if mouseX >= 0 and mouseX < cell_size * 9 and mouseY >= 0 and mouseY < cell_size * 9:
         selectedCol = int(mouseX / cell_size)
         selectedRow = int(mouseY / cell_size)
@@ -108,15 +114,14 @@ def mousePressed():
 
         if isValid(selectedRow, selectedCol, num):
             grid[selectedRow][selectedCol] = num
-            print("Inserted: " + str(num) + " at row=" + str(selectedRow) + ", col=" + str(selectedCol))
         else:
-            print("Cannot insert " + str(num) + " at row=" + str(selectedRow) + ", col=" + str(selectedCol) + " (duplicate!)")
+            warningMessage("Can not insert !!")
 
     backX = 940 + cell_num + cell_num
     backY = cell_num * 3
     if mouseX >= backX - 40 and mouseX <= backX + 40 and mouseY >= backY - 40 and mouseY <= backY + 40 and selectedRow != -1 and selectedCol != -1:
         grid[selectedRow][selectedCol] = 0
-        print("Deleted at row=" + str(selectedRow) + ", col=" + str(selectedCol))
+    
 
 def isValid(row, col, num):
     i = 0
@@ -139,5 +144,17 @@ def isValid(row, col, num):
                 return False
             j += 1
         i += 1
-
     return True
+
+
+def warningMessage(text):
+    global messageText, messageStartTime
+    messageText = text
+    messageStartTime = millis()
+
+def drawMessage():
+    if messageText != "" and millis() - messageStartTime < 2000:
+        fill(255, 80, 80)
+        textAlign(CENTER, CENTER)
+        textSize(40)
+        text(messageText, width - 200, height - 650 )
