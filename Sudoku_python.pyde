@@ -6,29 +6,51 @@ selectedCol = -1
 messageText = ""
 messageStartTime = 0
 fixedCell = [[False for _ in range(9)] for _ in range(9)]
+gameWon = False;
 
 def setup():
     size(1200, 750)
     loadGrid("dataNum.txt")
 
 def draw():
+    global gameWon
     background(255)
-    drawGrid()
     gridNumpad()
     drawNumpad()
     drawNumber()
+    drawGrid() 
     drawSelection()
-    drawMessage()   
+    drawMessage()  
+    
+    if isGameComplete():
+        gameWon = True
 
+    if gameWon:
+        fill(0, 150, 0)
+        textSize(40)
+        textAlign(CENTER, CENTER)
+        text("YOU WON!!", width - 200, height - 650)
+    
 def drawGrid():
     i = 0
     while i <= 9:
+        if i % 3 == 0:
+            strokeWeight(4) 
+        else:
+            strokeWeight(1)
         line(cell_size * i, 0, cell_size * i, cell_size * 9)
         i += 1
+
     j = 0
     while j <= 9:
+        if j % 3 == 0:
+            strokeWeight(4)
+        else:
+            strokeWeight(1)
         line(0, cell_size * j, cell_size * 9, cell_size * j)
         j += 1
+
+    strokeWeight(1)  
 
 def gridNumpad():
     i = 0
@@ -97,6 +119,7 @@ def drawSelection():
         stroke(0)
 
 def mousePressed():
+    if (gameWon): return
     global selectedRow, selectedCol, grid
     if mouseX >= 0 and mouseX < cell_size * 9 and mouseY >= 0 and mouseY < cell_size * 9:
         selectedCol = int(mouseX / cell_size)
@@ -126,26 +149,24 @@ def mousePressed():
 def isValid(row, col, num):
     i = 0
     while i < 9:
-        if grid[row][i] == num:
+        if i != col and grid[row][i] == num:
+            return False
+        if i != row and grid[i][col] == num:
             return False
         i += 1
-    i = 0
-    while i < 9:
-        if grid[i][col] == num:
-            return False
-        i += 1
-    startRow = (row // 3) * 3
-    startCol = (col // 3) * 3
-    i = 0
-    while i < 3:
-        j = 0
-        while j < 3:
-            if grid[startRow + i][startCol + j] == num:
-                return False
-            j += 1
-        i += 1
-    return True
 
+    start_row = (row // 3) * 3
+    start_col = (col // 3) * 3
+    r = 0
+    while r < 3:
+        c = 0
+        while c < 3:
+            if ((start_row + r != row or start_col + c != col) and 
+                grid[start_row + r][start_col + c] == num):
+                return False
+            c += 1
+        r += 1
+    return True
 
 def warningMessage(text):
     global messageText, messageStartTime
@@ -158,3 +179,14 @@ def drawMessage():
         textAlign(CENTER, CENTER)
         textSize(40)
         text(messageText, width - 200, height - 650 )
+        
+def isGameComplete():
+    i = 0
+    while i < 9:
+        j = 0
+        while j < 9:
+            if grid[i][j] == 0 or not isValid(i, j, grid[i][j]):
+                return False
+            j += 1
+        i += 1
+    return True
